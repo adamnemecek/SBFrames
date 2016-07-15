@@ -6,6 +6,7 @@
 //  Copyright © 2015 Opus Logica Inc. All rights reserved.
 //
 import SBUnits
+import Darwin.C.math
 
 ///
 /// A Position represents a 3d spatial position in a cartesian coordinate system and adhers to the

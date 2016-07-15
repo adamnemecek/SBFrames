@@ -6,6 +6,7 @@
 //  Copyright © 2015 Opus Logica Inc. All rights reserved.
 //
 import SBUnits
+import Darwin.C.math
 
 // https://en.wikipedia.org/wiki/Coordinate_system
 // https://en.wikipedia.org/wiki/Celestial_coordinate_system

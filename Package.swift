@@ -10,6 +10,6 @@ import PackageDescription
 let package = Package (
   name: "SBFrames",
   dependencies: [
-    .Package (url: "https://github.com/EBGToo/SBUnits.git",  majorVersion: 1)
+    .Package (url: "https://github.com/EBGToo/SBUnits.git",  majorVersion: 0)
   ]
 )

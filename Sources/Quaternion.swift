@@ -5,11 +5,13 @@
 //  Created by Ed Gamble on 6/26/16.
 //  Copyright © 2016 Opus Logica Inc. All rights reserved.
 //
+
+import Darwin.C.math
+
 ///
 /// Note: We do not use Apple's GLKit GLKQuaternion because it is based on 'Float'.
 ///
 /// https://en.wikipedia.org/wiki/Quaternions_and_spatial_rotation
-
 public struct Quaternion : Equatable {
 
   //

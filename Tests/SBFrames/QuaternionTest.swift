@@ -146,4 +146,11 @@ class QuaternionTest: XCTestCase {
     }
   }
 
+  
+  static var allTests : [(String, (QuaternionTest) -> () throws -> Void)] {
+    return [
+      ("testPerformanceQuaternion", testPerformanceQuaternion),
+    ]
+  }
+
 }

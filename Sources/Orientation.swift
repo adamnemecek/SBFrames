@@ -6,6 +6,7 @@
 //  Copyright © 2015 Opus Logica Inc. All rights reserved.
 //
 import SBUnits
+import Darwin.C.math
 
 public struct Orientation : Framed {
 
