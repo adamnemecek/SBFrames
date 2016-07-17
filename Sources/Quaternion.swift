@@ -9,9 +9,18 @@
 import Darwin.C.math
 
 ///
-/// Note: We do not use Apple's GLKit GLKQuaternion because it is based on 'Float'.
+/// A Quaternion is a convenient, efficient and numerically stable representation for orientations
+/// and for positions.  For an orientation, a quaternion uses a direction and a rotation about that
+/// direction.  Such a quaternion is normalized (norm/magnitude is 1).  For a position, a quaternion
+/// uses the three position coordianates.  Such a quaternion is 'pure'.
 ///
-/// https://en.wikipedia.org/wiki/Quaternions_and_spatial_rotation
+/// - note: A Quaternion is based on 'Double' to provide a bit more accuracy than can be expected
+/// from the 'Float'-basd GLKQuaternion.  A simple performance shows no lose (actually a significant
+/// improvement).
+///
+/// See https://en.wikipedia.org/wiki/Quaternions_and_spatial_rotation
+/// and https://en.wikipedia.org/wiki/Quaternion
+///
 public struct Quaternion : Equatable {
 
   //
@@ -196,23 +205,16 @@ public struct Quaternion : Equatable {
   /// - returns: A tuple of `angle` and `direction` where `direction` is a triple.
   ///
   public var asAngleDirection : (angle: Double, direction: (Double, Double, Double))? {
-    //    guard let that = normalize else { return nil }
-    if let that = normalize {
-      
-      let angle = 2 * atan2 (sqrt (q1*q1 + q2*q2 + q3*q3), q0)
-      //let angle = 2 * acos(that.q0)
-      
-      guard !angle.isZero else {
-        return (angle: angle, direction: (0.0, 0.0, 0.0))
-      }
-      
-      let df = sin (angle / 2)  // direction factor
+    guard let that = normalize else { return nil }
+    
+    let angle = 2 * atan2 (sqrt (q1*q1 + q2*q2 + q3*q3), q0)
 
-      return (angle: angle,
-              direction: (that.q1/df, that.q2/df, that.q3/df))
-    }
-      
-    else { return nil }
+    if angle.isZero  { return (angle: angle, direction: (0.0, 0.0, 0.0)) }
+    
+    let df = sin (angle / 2)  // direction factor
+    
+    return (angle: angle,
+            direction: (that.q1/df, that.q2/df, that.q3/df))
   }
 
   ///
@@ -266,6 +268,14 @@ public struct Quaternion : Equatable {
                        q3: yc * ps * rc + ys * ps * rs)
   }
   // var asEulerXXXAngles :
+  
+  // MARK: Position
+  
+  ///
+  /// 
+  public static func makeAsPosition (x: Double, y: Double, z: Double) -> Quaternion {
+    return Quaternion (q0: 0.0, q1: x, q2: y, q3: z)
+  }
   
   //
   // MARK: Constants
@@ -347,7 +357,19 @@ public func * (lhs:Quaternion, rhs:Double) -> Quaternion {
 //
 
 ///
-/// A DualQuaternion represents a rotation followed by a translation
+/// A DualQuaternion represents a rotation followed by a translation in a computationally
+/// convenient form.  A DualQuaternion has 'real' and 'dual' Quaternion parts which are derived 
+/// from the specified rotation (R) and translation (T).  [The 'real' part is 'R'; the 'dual' part
+/// is'T * R / 2'].  Multiplication of DualQuaternions composes frame transforamations. Q * P
+/// implies 'transform by P, then by Q'
+///
+/// A DualQuaternion can be built from a rotation and/or a translation.  Given a DualQuaternion
+/// the rotation and translations can be extracted.
+///
+/// Equality of a DualQuaternion is based on equality of its constituent 'real' and 'dual'
+/// Quaternions.
+///
+/// A DualQuaternion has three types of conjugates; they are used depending on the need.
 ///
 public struct DualQuaternion : Equatable {
 
@@ -366,6 +388,7 @@ public struct DualQuaternion : Equatable {
   /// nil is returned.
   ///
   /// - returns: `self` normalized
+  ///
   public var normalize : DualQuaternion? {
     let norm = self.norm
     
@@ -379,6 +402,7 @@ public struct DualQuaternion : Equatable {
   /// Normalize `self`.  If the `norm` is 0.0, then `self` is unchanged and `false` is returned.
   ///
   /// - returns: `true` if `self` was normalized; `false` otherwise
+  ///
   public mutating func normalized () -> Bool {
     if let that = self.normalize {
       self = that
@@ -388,9 +412,10 @@ public struct DualQuaternion : Equatable {
   }
   
   /// The `ConjugateType` defines the options when computing the `DualQuaternion`'s conjugate
-  ///   QUATERNION:
-  ///   DUAL:
-  ///   DUAL_AND_QUATERNION:
+  ///   QUATERNION          : Qr* + ε Qd*
+  ///   DUAL                : Qr  - ε Qd
+  ///   DUAL_AND_QUATERNION : Qr* - ε Qd*
+  ///
   public enum ConjugateType {
     case QUATERNION
     case DUAL
@@ -440,6 +465,11 @@ public struct DualQuaternion : Equatable {
     return (self * rotationAsDQ * self.conjugate(.DUAL_AND_QUATERNION)).real
   }
   
+  ///
+  /// Return a function to compose `self` with `that` (as `that` * `self`)
+  ///
+  /// - returns: Function as (that:DualQuaternion) -> DualQuaternion
+  ///
   var composer : (DualQuaternion) -> DualQuaternion {
     return { (that: DualQuaternion) -> DualQuaternion in
       return that * self
@@ -528,24 +558,33 @@ public struct DualQuaternion : Equatable {
   }
 
   ///
-  /// The itentity using a zero translation and an identity rotation.
+  /// The identity using a zero translation and an identity rotation.
   ///
   public static var identity = DualQuaternion (real: Quaternion.identity,
                                         dual: Quaternion.zero)
 }
 
+///
+///
+///
 public func == (lhs:DualQuaternion, rhs:DualQuaternion) -> Bool {
   return lhs.real == rhs.real &&
     lhs.dual == rhs.dual
 }
 
+///
+/// Add as Q + P = (Qr + Pr) + ε (Qd + Pd)
+///
 public func + (lhs:DualQuaternion, rhs:DualQuaternion) -> DualQuaternion {
   return DualQuaternion (real: lhs.real + rhs.real,
                          dual: lhs.dual + rhs.dual)
 }
 
+///
+/// Multiply as Q * P = (Qr * Pr) + ε (Qr * Pd + Qd * Pr).  The result is a composition as 'perform
+/// P, then Q'
+///
 public func * (lhs:DualQuaternion, rhs:DualQuaternion) -> DualQuaternion {
   return DualQuaternion (real: lhs.real * rhs.real,
                          dual: lhs.real * rhs.dual + lhs.dual * rhs.real)
 }
-

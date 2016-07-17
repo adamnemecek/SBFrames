@@ -12,131 +12,13 @@ import Darwin.C.math
 // https://en.wikipedia.org/wiki/Celestial_coordinate_system
 // https://en.wikipedia.org/wiki/List_of_common_coordinate_transformations
 
-public enum AxisX : Int, CustomStringConvertible {
-  case x = 0
-  case y = 1
-  case z = 2
-  
-  static var names = ["X", "Y", "Z"]
-  
-  var name : String { return AxisX.names[self.rawValue] }
-  
-  public var description : String { return name }
-}
-
-let NUMBER_OF_AXES = 1 + AxisX.z.rawValue
-
-// NOTE: The position and orientation of a FRAME needs to be writeable.  For
-// example, a Spacecraft has a frame which defines the coordinate system for
-// all spacecraft devices.  Each device will define their own coordinate system
-// with a parent given by the spacecraft's frame.  When the spacecraft moves,
-// the physical coordinate system of the spacecraft changes.  If an SBFrame
-// is immutable then the spacecraft's frame could be changed but then all the
-// attached devices would a) still reference the old frame or b) all need to be
-// updated to the changed frame - that at least if one needed to transform from
-// the device to coordiates 'above' the spacecraft (like planets, stars, etc).
-// As it stands a frame does not maintain an association with its children and
-// thus option 'b' - updating all referencing frames with the next frame - is
-// practically impossible.  The other option is to make SBFrame properties for
-// POSITION and ORIENTATION writeable.
-//
-// If a FRAME's POSITION and ORIENTATION are writeable then changes would need
-// to be monitorable.  Thus, for example, a star tracker could compute the ever
-// changing direction of the sun so as to avoid staring into the light.  And, of
-// course, on change, any cached FrameTransform data would need to be flushed.
-//
-
-// Does a frame have UNIT?  It doesn't make sense to inherit the unit from the
-// frame's position because that position is in the frame's parent frame.
-//
-// Should a frame be a factory for SBPosition, SBDirection and SBOrientation.
-// Yea, kind of - since each of those needs a SBFrame (as each is a
-// SBFramedObject).
-
-// Dimensionality: 1D, 2D, 3D, ...
-// Type: Rectangular, Spherical, Cylindrical, etc.
-//   => Created POSITION, ORIENTATION off of FRAME must be of the correct type.
-
-
-// MORE DISCUSSION
-
-// Every frame has a position and an orientation - for the 'base frame' they are 'zero'
-//   No, the position itself has a 'frame' even if zero.  If user accesses that frame, then the 
-//   user now has a frame w/o a position.
-//
-// Base frame has no parent, no position, no orientation.  THERE IS NO OTHER POSSIBILITY
-//   (at least if position, orientation will have a frame)
-//
-// What is the coordindate system for a base frame: rectangular, spherical, cylindrical?
-
-
-// ============================================================================================== //
-//
-// Imagine:
-//   a well-defined base frame
-//   a sun expressed in the base-frame
-//   a moving spacecraft in the base-frame
-//   a camera on the spacecraft with a frame relative to the spacecraft's and a view direction
-//     (assume the camera and/or the camera's frame listens to spacecraft motion and will close
-//      a shutter if the camera's view 'hits' the sun)
-//
-// The spacecraft moves:
-//   The sun itself didn't move, but the postion/orientation relative to the spacecraft did.
-//   The camera moved - it is attached to the spacecraft
-//     The angle between the camera's direction and the sun changed.
-//
-// Key Question // Design Issue
-//
-//  Q-1-A: Is the frame of the spacecraft modified (spacecraft reference to the frame is unchanged
-//    but the frame's position and orientation changed)
-//
-//  Q-1-B: Is the spacecraft's frame changed (perhaps a frame is immutable (value semantics); the
-//    spacecraft has a newly allocated frame)
-//  Analysis: the camera registered with the spacecraft; the camera knows it is mounted on the
-//    spacecraft with a fixed (parameterized) position/orientation offet.  The camera, like the
-//    spacecraft has it's own frame.  On callback, the camera frame is changed as:
-//      cFrame2 = Frame(scFrame2, Postion(scFrame2, fixedOffset), Orientation(scFrame2, fixedOffset)
-//        where fixedOffset are the 'hard numbers' relative to the original scFrame1
-//    On callback, the view direcion is updated
-//    With new direction, the angle between view and sun is measured; shutter is closed if needed.
-//
-//  Q-2: The spacecraft has a 'reference frame' with reference semantics; a 'coordinate system'
-//     has value semantics?
-
-//  Q-3: A Position is 'Framed'; a Spacecraft is 'Framed' - that does not seem correct as they are
-//    vastly different conceptually.  Position vs Point?  Point expressed with different positions
-//    depending on coordinate system.  Point moves -> all positions changed.
-//      Point -> Position
-//      Line -> Direction
-//      Body -> Frame (position + orientation)
-//
-//  Q-4: Race Condition: Two objects a camera and a thruster on the spacecraft; camera is 
-//    interested in thruster plume.  Spacecraft moves (position+orientation); camera and thruster
-//    are updated (somehow, see Q-1), camera computes plume impact.
-//  Answer-ish: If reference semantics, when spacecraft moves, both camera and thruster 
-//    'instantaneously' have different positions/orientations (relative to some third frame). If
-//    value semantics, camera and thruster frames need to be updated and only then computed.
-//
-//  Q-5: Sun moves.  Spacecraft registered as 'interested'; updates computed properties.  Does the
-//    Sun notify (should be) or does the Sun's frame notify the S/C frame (can't be)?
-//
-//  Q-6: Updating Race Condition - A Frame is having it's Postion + Orientation updated, any
-//    subframe may perform a computation using its 'half updated' parent...  Unless updates are
-//    atomic.
-//
-//    Frame notifies listeners of its replacement?  Listeners assign the replacement as the new
-//    parent?  [Listeners need to be sure they are not between computations using the parent -
-//    which gets changed during the computations.]
-//
-//    New frame allocated as (parent: new, position: old, orientation: old) - no, old position and
-//    orientation will point to old frame.
-//
-//
 
 // MARK: Framed Protcol
 
 ///
-/// The `Framed` protocol represents objects that have a Frame
+/// The `Framed` protocol represents objects that have a Frame - a Frame being a coordinate system
+/// defined with a position and orientation.  Examples of types having a frame are: Position,
+/// Orientation, Direction and, recursively, a Frame itself.
 ///
 public protocol Framed {
   
@@ -189,7 +71,8 @@ extension Framed {
 // MARK: Invertable Protocol
 
 ///
-/// The `IntertableFramed` protocol represents objects that are `Framed` and that are invertable.
+/// The `Intertable` protocol represents objects that are `Framed` and that are invertable.
+/// The single `inverse` computed property produces the inverse.
 ///
 public protocol Invertable : Framed {
   /// Introduces 'self' constraint
@@ -198,11 +81,33 @@ public protocol Invertable : Framed {
 
 // MARK: Translatable Protocol
 
+///
+/// The 'Translatable' protocol represents objects that are Framed and that are translatable.  
+/// Examples include a Position and a Frame.  The protocol defines two methods: `translate` which
+/// offsets the translatable; and `translated` which mutates the translatable by the offset.
+///
 public protocol Translatable : Framed {
+  
+  ///
+  /// Translate `self` by `offset`
+  ///
+  /// - parameter offset:
+  ///
+  /// - returns: a new translatable
+  ///
   func translate (_ offset: Position) -> Self
+  
+  ///
+  /// Translate `self` by `offset` and then mutate `self`
+  ///
+  /// - parameter offset:
+  ///
   mutating func translated (_ offset: Position)
 }
 
+///
+///
+///
 extension Translatable {
   public mutating func translated (_ offset: Position) {
     self = translate (offset)
@@ -211,8 +116,27 @@ extension Translatable {
 
 // MARK: Rotatable Protocol
 
+///
+/// The `Rotatable` protocol represents objects that are Framed and that are rotatable.  Examples
+/// include Position, Orientation, Direction and Frame.  The protocol defines two methods:
+/// `rotate` with offsets the rotatable; and `rotated` which mutates the rotatable by the offset.
+///
 public protocol Rotatable : Framed {
+  
+  ///
+  /// Rotate `self` by `offset`
+  ///
+  /// - parameter offset:
+  ///
+  /// - returns: a new rotatable
+  ///
   func rotate (_ offset: Orientation) -> Self
+  
+  ///
+  /// Rotate `self` by `offset` and then mutate `self`
+  ///
+  /// - parameter offset:
+  ///
   mutating func rotated (_ offset: Orientation)
 }
 
@@ -225,31 +149,77 @@ extension Rotatable {
 // MARK: Transformable Protocol
 
 ///
-///
+/// The `Transformable` protocol represents objects that are Framed adn that are transformable.
+/// Examples include Position, Orientation, Direction and Frame.  The protocol defines three
+/// methods: `transform:by` with returns a new transformable transformed by frame; `transform:to`
+/// which returns a new transformable transformed to frame (it represents the same physical
+/// position and orientation); and `transformed`
 ///
 public protocol Transformable : Framed {
 
+  ///
   /// Transform 'self' to frame.  Once transformed `self` will represent the *same* physical
   /// position and orientation; it will just be represented in the provided frame.
-  mutating func transformed (to frame: Frame)
-  
-  /// Transform `self` to `frame`
+  ///
+  /// - parameter to:
+  ///
+  /// - returns: 
+  ///
   func transform (to frame: Frame) -> Self
   
+  ///
+  /// Transform `self` to `frame` as if by `transform:to` and then mutate `self`
+  ///
+  /// - parameter to:
+  ///
+  mutating func transformed (to frame: Frame)
+  
+  ///
   /// Transform `self` by frame to produce a new `framed` that will have a *different* physical
   /// position and orientation.
+  ///
+  /// - parameter to:
+  ///
+  /// - returns
+  ///
   func transform (by frame: Frame) -> Self
+  
+  ///
+  /// Transform `self` to `frame` as if by `transform:by` and then mutate `self`
+  ///
+  /// - parameter to:
+  ///
+  mutating func transformed (by frame: Frame)
 }
 
+///
+///
+///
 extension Transformable {
   public mutating func transformed (to frame: Frame) {
     self = transform(to: frame)
   }
+  
+  public mutating func transformed (by frame: Frame) {
+    self = transform(by: frame)
+  }
+
 }
 
 // MARK: Composable Protocol
 
-public protocol Composable {
+///
+/// The `composable` protocol represents objects that are Framed and that are composable.
+///
+public protocol Composable : Framed {
+  
+  ///
+  /// Compose `self` with `offset`
+  ///
+  /// - parameter offset:
+  ///
+  /// - returns:
+  ///
   func compose  (_ offset: Self) -> Self
 }
 
@@ -312,38 +282,65 @@ public final class Frame : Framed  {
   }
   
   
-  //
-  //
-  //
-  
   // MARK: Initialize
   
   private init () {}
-  
+
+  ///
+  /// Initialize with a DualQuaternion
+  ///
+  /// - parameter frame:
+  /// - parameter unit:
+  /// - parameter dual:
+  ///
   private init (frame: Frame, unit: UnitX<Length>, dual: DualQuaternion) {
     self.frame = frame
     self.unit = unit
     self.dual = dual
   }
 
+  ///
+  /// Initialize with a Position
+  ///
+  /// - parameter position:
+  ///
   public convenience init (position : Position) {
     self.init (frame: position.frame,
                unit: position.unit,
                dual: DualQuaternion (translation: position.quat))
   }
   
+  ///
+  /// Initialize with an Orientation
+  ///
+  /// - parameter orientation:
+  ///
   public convenience init (orientation : Orientation) {
     self.init (frame: orientation.frame,
                unit: meter,
                dual: DualQuaternion (rotation: orientation.quat))
   }
   
+  ///
+  /// Initialize with a Position and an Orientation; use the position's frame as the 'parent'
+  ///
+  /// - parameter position:
+  /// - parameter orientation:
+  ///
   public convenience init (position : Position, orientation : Orientation) {
     self.init (frame: position.frame,
                position: position,
                orientation: orientation)
   }
   
+  ///
+  /// Initialize with a Position and an Orientation in the provided Frame.  Both position and
+  /// orientation are converted to frame, if they are not currently in frame.
+  ///
+  /// - parameter frame:
+  /// - parameter position:
+  /// - parameter orientation:
+  ///
   public convenience init (frame: Frame, position : Position, orientation : Orientation) {
     // self.position = position.transform (to: frame)
     // self.orientation = orientation.transform(to: frame)
@@ -359,7 +356,7 @@ public final class Frame : Framed  {
   /// The `root` frame is the base for all frames.  There is one and only one base frame; you'll
   /// define the semantics of this frame and, importantly, you never need to descend to this depth
   /// if you instead define all our frames under one other frame (which will be a subframe of
-  /// base.
+  /// base).
   ///
   static let root = Frame()
 
@@ -368,6 +365,9 @@ public final class Frame : Framed  {
 
   // MARK: Axis
   
+  ///
+  /// An Axis enum represents X, Y and Z axes.
+  ///
   public enum Axis : Int, CustomStringConvertible {
     case x = 0
     case y = 1
@@ -422,9 +422,6 @@ extension Frame : Translatable {
 // MARK: Transformable
 
 extension Frame : Transformable {
-  ///
-  /// Transform 'self' to frame.  Once transformed `self` will represent the *same* physical
-  /// position and orientation; it will just be represented in the provided frame.
   public func transformed (to frame: Frame) {
     let target = transform (to: frame)
     
@@ -515,27 +512,104 @@ extension Frame : Composable {
   }
 }
 
-/*
-Frame C (transform from B) * Vector C = Vector B
-1 0 0 1   0   1           1 0 0 1   9   10
-0 1 0 0   0   0           0 1 0 0   0    0
-0 0 1 0   0 = 0           0 0 1 0   0 =  0
-0 0 0 1   1   1           0 0 0 1   1    1
-(Frame C is translated from B by 1 unit along X)
+// NOTE: The position and orientation of a FRAME needs to be writeable.  For
+// example, a Spacecraft has a frame which defines the coordinate system for
+// all spacecraft devices.  Each device will define their own coordinate system
+// with a parent given by the spacecraft's frame.  When the spacecraft moves,
+// the physical coordinate system of the spacecraft changes.  If an SBFrame
+// is immutable then the spacecraft's frame could be changed but then all the
+// attached devices would a) still reference the old frame or b) all need to be
+// updated to the changed frame - that at least if one needed to transform from
+// the device to coordiates 'above' the spacecraft (like planets, stars, etc).
+// As it stands a frame does not maintain an association with its children and
+// thus option 'b' - updating all referencing frames with the next frame - is
+// practically impossible.  The other option is to make SBFrame properties for
+// POSITION and ORIENTATION writeable.
+//
+// If a FRAME's POSITION and ORIENTATION are writeable then changes would need
+// to be monitorable.  Thus, for example, a star tracker could compute the ever
+// changing direction of the sun so as to avoid staring into the light.  And, of
+// course, on change, any cached FrameTransform data would need to be flushed.
+//
 
-Frame B (transform from A) * Vector B = Vector A
-1 0 0 3   1   4           1 0 0 3  10   13
-0 1 0 0   0   0           0 1 0 0   0    0
-0 0 1 0   0 = 0           0 0 1 0   0 =  0
-0 0 0 1   1   1           0 0 0 1   1    1
-(Frame B is translated from A by 3 units along X)
 
-Frame C (transform from A) * Vector C = Vector A
-1 0 0 3   1 0 0 1   0       1 0 0 4   0   4
-0 1 0 0   0 1 0 0   0       0 1 0 0   0   0
-0 0 1 0   0 0 1 0   0   =>  0 0 1 0   0 = 0
-0 0 0 1   0 0 0 1   1       0 0 0 1   1   1
-(Frame C is translated from A by 4 units along X which is
-FrameB-A * FrameC-B
-*/
+// Type: Rectangular, Spherical, Cylindrical, etc.
+//   => Created POSITION, ORIENTATION off of FRAME must be of the correct type.
+
+
+// MORE DISCUSSION
+
+// Every frame has a position and an orientation - for the 'base frame' they are 'zero'
+//   No, the position itself has a 'frame' even if zero.  If user accesses that frame, then the
+//   user now has a frame w/o a position.
+//
+// Base frame has no parent, no position, no orientation.  THERE IS NO OTHER POSSIBILITY
+//   (at least if position, orientation will have a frame)
+//
+// What is the coordindate system for a base frame: rectangular, spherical, cylindrical?
+
+
+// ============================================================================================== //
+//
+// Imagine:
+//   a well-defined base frame
+//   a sun expressed in the base-frame
+//   a moving spacecraft in the base-frame
+//   a camera on the spacecraft with a frame relative to the spacecraft's and a view direction
+//     (assume the camera and/or the camera's frame listens to spacecraft motion and will close
+//      a shutter if the camera's view 'hits' the sun)
+//
+// The spacecraft moves:
+//   The sun itself didn't move, but the postion/orientation relative to the spacecraft did.
+//   The camera moved - it is attached to the spacecraft
+//     The angle between the camera's direction and the sun changed.
+//
+// Key Question // Design Issue
+//
+//  Q-1-A: Is the frame of the spacecraft modified (spacecraft reference to the frame is unchanged
+//    but the frame's position and orientation changed)
+//
+//  Q-1-B: Is the spacecraft's frame changed (perhaps a frame is immutable (value semantics); the
+//    spacecraft has a newly allocated frame)
+//  Analysis: the camera registered with the spacecraft; the camera knows it is mounted on the
+//    spacecraft with a fixed (parameterized) position/orientation offet.  The camera, like the
+//    spacecraft has it's own frame.  On callback, the camera frame is changed as:
+//      cFrame2 = Frame(scFrame2, Postion(scFrame2, fixedOffset), Orientation(scFrame2, fixedOffset)
+//        where fixedOffset are the 'hard numbers' relative to the original scFrame1
+//    On callback, the view direcion is updated
+//    With new direction, the angle between view and sun is measured; shutter is closed if needed.
+//
+//  Q-2: The spacecraft has a 'reference frame' with reference semantics; a 'coordinate system'
+//     has value semantics?
+
+//  Q-3: A Position is 'Framed'; a Spacecraft is 'Framed' - that does not seem correct as they are
+//    vastly different conceptually.  Position vs Point?  Point expressed with different positions
+//    depending on coordinate system.  Point moves -> all positions changed.
+//      Point -> Position
+//      Line -> Direction
+//      Body -> Frame (position + orientation)
+//
+//  Q-4: Race Condition: Two objects a camera and a thruster on the spacecraft; camera is
+//    interested in thruster plume.  Spacecraft moves (position+orientation); camera and thruster
+//    are updated (somehow, see Q-1), camera computes plume impact.
+//  Answer-ish: If reference semantics, when spacecraft moves, both camera and thruster
+//    'instantaneously' have different positions/orientations (relative to some third frame). If
+//    value semantics, camera and thruster frames need to be updated and only then computed.
+//
+//  Q-5: Sun moves.  Spacecraft registered as 'interested'; updates computed properties.  Does the
+//    Sun notify (should be) or does the Sun's frame notify the S/C frame (can't be)?
+//
+//  Q-6: Updating Race Condition - A Frame is having it's Postion + Orientation updated, any
+//    subframe may perform a computation using its 'half updated' parent...  Unless updates are
+//    atomic.
+//
+//    Frame notifies listeners of its replacement?  Listeners assign the replacement as the new
+//    parent?  [Listeners need to be sure they are not between computations using the parent -
+//    which gets changed during the computations.]
+//
+//    New frame allocated as (parent: new, position: old, orientation: old) - no, old position and
+//    orientation will point to old frame.
+//
+//
+
 

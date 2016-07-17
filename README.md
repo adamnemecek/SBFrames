@@ -20,7 +20,26 @@ Frames is a collection of ...
 
 ### Quaternion
 
+A Quaternion is a convenient, efficient and numerically stable representation for orientations
+and for positions.  For an orientation, a quaternion uses a direction and a rotation about that
+direction.  Such a quaternion is normalized (norm/magnitude is 1).  For a position, a quaternion
+uses the three position coordianates.  Such a quaternion is 'pure'.
+
 ### DualQuaternion
+
+A DualQuaternion represents a rotation followed by a translation in a computationally
+convenient form.  A DualQuaternion has 'real' and 'dual' Quaternion parts which are derived 
+from the specified rotation (R) and translation (T).  [The 'real' part is 'R'; the 'dual' part
+is'T * R / 2'].  Multiplication of DualQuaternions composes frame transforamations. Q * P
+implies 'transform by P, then by Q'
+
+A DualQuaternion can be built from a rotation and/or a translation.  Given a DualQuaternion
+the rotation and translations can be extracted.
+
+Equality of a DualQuaternion is based on equality of its constituent 'real' and 'dual'
+Quaternions.
+
+A DualQuaternion has three types of conjugates; they are used depending on the need.
 
 ## Usage
 
