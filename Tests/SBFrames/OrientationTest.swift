@@ -41,7 +41,7 @@ class OrientationTest: XCTestCase {
     super.tearDown()
   }
   
-  func checkValues (_ p: Position, frame: Frame, unit: UnitX<Length>, x: Double, y: Double, z: Double) {
+  func checkValues (_ p: Position, frame: Frame, unit: SBUnits.Unit<Length>, x: Double, y: Double, z: Double) {
     XCTAssert(p.has (frame: frame))
     XCTAssertEqualWithAccuracy(p.x.value, x, accuracy: accuracy)
     XCTAssertEqualWithAccuracy(p.y.value, y, accuracy: accuracy)

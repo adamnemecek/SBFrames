@@ -49,7 +49,7 @@ public struct Direction : Framed {
   }
 
   /// The position represented by `self` with `unit`.  Will have a distance of '1 unit'.
-  public func position (unit: UnitX<Length>) -> Position {
+  public func position (unit: Unit<Length>) -> Position {
     return Position (frame: frame,
                      unit: unit,
                      quat: quat)

@@ -245,7 +245,7 @@ public final class Frame : Framed  {
   }()
 
   /// The unit
-  public internal(set) var unit : UnitX<Length> = meter
+  public internal(set) var unit : Unit<Length> = meter
   
   /// The dual, a DualQuaternion
   public internal(set) var dual : DualQuaternion = DualQuaternion.identity
@@ -270,7 +270,7 @@ public final class Frame : Framed  {
   ///
   ///
   ///
-  func translation (unit: UnitX<Length>, x: Double, y: Double, z: Double) -> Position {
+  func translation (unit: Unit<Length>, x: Double, y: Double, z: Double) -> Position {
     return Position (frame: self, unit: unit, x: x, y: y, z: z)
   }
   
@@ -293,7 +293,7 @@ public final class Frame : Framed  {
   /// - parameter unit:
   /// - parameter dual:
   ///
-  private init (frame: Frame, unit: UnitX<Length>, dual: DualQuaternion) {
+  private init (frame: Frame, unit: Unit<Length>, dual: DualQuaternion) {
     self.frame = frame
     self.unit = unit
     self.dual = dual

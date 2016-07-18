@@ -47,7 +47,7 @@ public struct Orientation : Framed {
     self.init (frame: frame, angle: angle, direction: Direction(frame: frame, axis: axis))
   }
   
-  public init (frame: Frame, unit: UnitX<Angle>, convention: RotationConvention, x: Double, y: Double, z: Double) {
+  public init (frame: Frame, unit: Unit<Angle>, convention: RotationConvention, x: Double, y: Double, z: Double) {
 
     let x = radian.convert (x, unit: unit)
     let y = radian.convert (y, unit: unit)

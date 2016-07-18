@@ -22,7 +22,7 @@ public struct Position : Framed {
   ///
   /// The unit of `self`.
   ///
-  public let unit : UnitX<Length>
+  public let unit : Unit<Length>
 
   ///
   /// The internal representation of `self` - a pure quaternion (q0 == 0), un-normalized.
@@ -102,10 +102,10 @@ public struct Position : Framed {
   /// Scale `self` for `unit`.  The retured Postion corresponds to the same position in frame but
   /// is represented with `unit`
   ///
-  public func scale (for unit: UnitX<Length>) -> Position {
+  public func scale (for unit: Unit<Length>) -> Position {
     guard self.unit !== unit else { return self }
     
-    let converter = UnitX.converter (self.unit, unit)
+    let converter = Unit.converter (self.unit, unit)
     
     return Position (frame: frame, unit: unit,
                      x: converter (quat.q1),
@@ -117,7 +117,7 @@ public struct Position : Framed {
   /// Modify `self` by scaling for `unit`.  The resulting `self` corresponds to the same position 
   /// in frame but is represented with `unit`
   ///
-  public mutating func scaled (for unit: UnitX<Length>) {
+  public mutating func scaled (for unit: Unit<Length>) {
     self = scale (for: unit)
   }
   
@@ -133,7 +133,7 @@ public struct Position : Framed {
   /// - parameter y:
   /// - parameter z:
   ///
-  public init (frame: Frame, unit: UnitX<Length>, x: Double, y: Double, z: Double) {
+  public init (frame: Frame, unit: Unit<Length>, x: Double, y: Double, z: Double) {
     self.init (frame: frame,
                unit: unit,
                quat: Quaternion (q0: 0.0, q1: x, q2: y, q3: z))
@@ -195,7 +195,7 @@ public struct Position : Framed {
   /// - parameter unit:
   /// - parameter quat:
   ///
-  internal init (frame: Frame, unit: UnitX<Length>, quat: Quaternion) {
+  internal init (frame: Frame, unit: Unit<Length>, quat: Quaternion) {
     self.quat = quat
     self.unit = unit
     self.frame = frame
