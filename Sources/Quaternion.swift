@@ -6,7 +6,9 @@
 //  Copyright © 2016 Opus Logica Inc. All rights reserved.
 //
 
-import Darwin.C.math
+#if os(OSX) || os(iOS) || os(watchOS) || os(tvOS)
+  import Darwin.C.math
+#endif
 
 ///
 /// A Quaternion is a convenient, efficient and numerically stable representation for orientations

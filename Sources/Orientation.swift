@@ -6,7 +6,9 @@
 //  Copyright © 2015 Opus Logica Inc. All rights reserved.
 //
 import SBUnits
-import Darwin.C.math
+#if os(OSX) || os(iOS) || os(watchOS) || os(tvOS)
+  import Darwin.C.math
+#endif
 
 public struct Orientation : Framed {
 
