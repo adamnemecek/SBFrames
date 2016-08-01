@@ -84,11 +84,11 @@ public struct Vector<Value : FloatingPoint> : VectorProtocol {
   }
   
   public func sum () -> Value {
-    return ca.reduce (Value(), combine: +)
+    return ca.reduce (Value(), +)
   }
   
   public func norm () -> Value {
-    return ca.reduce (Value(), combine: { $0 + $1 *  $1 })
+    return ca.reduce (Value()) { $0 + $1 * $1 }
   }
 }
 
