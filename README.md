@@ -12,11 +12,27 @@ Frames is a collection of ...
 
 ### Frame
 
+A Frame represents a 3D spatial position and orientation in a cartesian coordinate system.
+
 ### Orientation
+
+An Orientation represents the axes in a 3D cartesian coordinate system defined by a `frame.`  An
+Orientation adhers to the `Framed` protocol and can be rotated, inverted and transformed.
 
 ### Position
 
+A Position represents a 3d spatial position in a certesian coordinate system defined by a
+`frame`.  A Position adhers to the `Framed` protocol and can be scaled, translated, rotated, 
+inverted and transformed.  A Position can be converted into a `Direction`.  With two Positions
+a can computate the distance and angle between the two postions; of the two positions are in
+a different frame, then they are converted to the same frame before the desired computation.
+
 ### Direction
+
+A Direction represents a direction to a postion defined in a `Frame`.  A Direction can be
+inverted, rotated and transformed.  The angle between a direction and another direction or an
+axis can be computed.  A Direction can produce a Position (given a `unit`) and an Orientation
+(given an `angle` about the direction).
 
 ### Quaternion
 

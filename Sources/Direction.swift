@@ -10,7 +10,14 @@ import SBUnits
   import Darwin.C.math
 #endif
 
-typealias FrameDirection = Array<Double>
+///
+/// A Direction represents a direction to a postion defined in a `Frame`.  A Direction can be
+/// inverted, rotated and transformed.  The angle between a direction and another direction or an
+/// axis can be computed.  A Direction can produce a Position (given a `unit`) and an Orientation
+/// (given an `angle` about the direction).
+///
+/// A Direction is immutable.
+///
 
 public struct Direction : Framed {
   
@@ -57,6 +64,13 @@ public struct Direction : Framed {
                      quat: quat)
   }
 
+  /// An orientation in `self`'s direction with `angle` about `self`.
+  public func orientation (angle: Quantity<Angle>) -> Orientation {
+    return Orientation (frame: frame,
+                        angle: angle,
+                        direction: self)
+  }
+  
   // MARK: Initialize
   
   ///

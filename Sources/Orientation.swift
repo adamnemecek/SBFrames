@@ -10,6 +10,12 @@ import SBUnits
   import Darwin.C.math
 #endif
 
+///
+/// An Orientation represents the axes in a 3D cartesian coordinate system defined by a `frame.`  An
+/// Orientation adhers to the `Framed` protocol and can be rotated, inverted and transformed.
+///
+/// An Orientation is immmutable.
+
 public struct Orientation : Framed {
 
   public enum RotationConvention {

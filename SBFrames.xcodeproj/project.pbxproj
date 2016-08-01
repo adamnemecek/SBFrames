@@ -50,6 +50,7 @@
 		3C78E1901D371D8D004DD937 /* QuaternionTest.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = QuaternionTest.swift; sourceTree = "<group>"; };
 		3C78E1921D37487D004DD937 /* QuaternionDualTest.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = QuaternionDualTest.swift; sourceTree = "<group>"; };
 		3C7C27991CA49121001B31A8 /* SBUnits.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SBUnits.framework; path = "../../../Library/Developer/Xcode/DerivedData/SB-eamescwzvtituiaculknzgswpuaq/Build/Products/Debug/SBUnits.framework"; sourceTree = "<group>"; };
+		3C7DC01D1D47CE5C005EDF4C /* SBFrames.playground */ = {isa = PBXFileReference; lastKnownFileType = file.playground; path = SBFrames.playground; sourceTree = "<group>"; };
 		3CDA7BCF1C11505E0096AA8A /* LICENSE */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = LICENSE; sourceTree = "<group>"; };
 		3CDA7BD01C11505E0096AA8A /* NOTICE */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = NOTICE; sourceTree = "<group>"; };
 		3CDA7BD11C11505E0096AA8A /* SBFrames.podspec */ = {isa = PBXFileReference; explicitFileType = text.script.ruby; fileEncoding = 4; path = SBFrames.podspec; sourceTree = "<group>"; };
@@ -83,6 +84,7 @@
 		3C135C581BD8C6110000C7D8 = {
 			isa = PBXGroup;
 			children = (
+				3C7DC01D1D47CE5C005EDF4C /* SBFrames.playground */,
 				3C135C641BD8C6110000C7D8 /* Sources */,
 				3C135C701BD8C6110000C7D8 /* Tests */,
 				3CDA7BCE1C114FF90096AA8A /* Share */,
@@ -403,7 +405,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.opuslogica.SBFrames;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
-				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
 				SWIFT_VERSION = 3.0;
 			};
 			name = Debug;

@@ -290,6 +290,46 @@ class FrameTest: XCTestCase {
                      axis: .z)
   }
   
+  func testMutable1 () {
+    let f1 = Frame (position: Position (frame: Frame.root, unit: meter, x: 1.0, y: 0.0, z: 0.0))
+    var f2 = f1
+    checkPosition(f1.position, frame: f1, unit: meter, x: 1.0, y: 0.0, z: 0.0)
+    checkPosition(f2.position, frame: f1, unit: meter, x: 1.0, y: 0.0, z: 0.0)
+ 
+    let off1 = Position (frame: Frame.root,  unit: meter, x: -2.0, y: 0.0, z: 0.0)
+
+    // F2 mutated, F1 not.  Is this how we want it to be?
+    f2.translated(off1)
+    //checkPosition(f1.position, frame: f1, unit: meter, x:  1.0, y: 0.0, z: 0.0)
+    checkPosition(f2.position, frame: f1, unit: meter, x: -1.0, y: 0.0, z: 0.0)
+  }
+
+  func XtestMutable2 () {
+    var f1 = Frame (position: Position (frame: Frame.root, unit: meter, x: 1.0, y: 0.0, z: 0.0))
+    checkPosition(f1.position, frame: f1, unit: meter, x: 1.0, y: 0.0, z: 0.0)
+
+    let f2 = Frame (frame: f1,
+                    position: Position (frame: f1, unit: meter, x: 1.0, y: 0.0, z: 0.0),
+                    orientation: Orientation (frame: f1))
+    checkPosition(f2.position, frame: f2, unit: meter, x: 1.0, y: 0.0, z: 0.0)
+    checkPosition(f2.position.transform(to: Frame.root),
+                  frame: Frame.root,
+                  unit: meter,
+                  x: 2.0, y: 0.0, z: 0.0)
+
+    
+    let off1 = Position (frame: Frame.root, unit: meter, x: -2.0, y: 0.0, z: 0.0)
+    
+    // F1 mutated, F2 is not.  Is this how we want it to be?
+    f1.translated(off1)
+    checkPosition(f1.position, frame: f1, unit: meter, x: -1.0, y: 0.0, z: 0.0)
+    checkPosition(f2.position, frame: f2, unit: meter, x:  1.0, y: 0.0, z: 0.0)
+        checkPosition(f2.position.transform(to: Frame.root),
+                      frame: Frame.root,
+                      unit: meter,
+                      x: 0.0, y: 0.0, z: 0.0)
+  }
+
   func testPerformanceExample() {
     self.measure {
     }

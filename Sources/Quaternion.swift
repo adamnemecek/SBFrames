@@ -117,6 +117,8 @@ public struct Quaternion : Equatable {
   ///
   /// Return the normalized quaterion for `self`.  If the norm is zero, then the result is nil
   ///
+  /// - returns: The nomalized quanternion for `self` or `nil` if the norm is zero.
+  ///
   public var normalize : Quaternion? {
     let norm = self.norm
     
@@ -128,6 +130,8 @@ public struct Quaternion : Equatable {
   ///
   /// Normalize `self` if the norm is not zero
   ///
+  /// - returns: `true` is `self` was normalized; `false` otherwise.
+  ///
   public mutating func normalized () -> Bool {
     let norm = self.norm
 
@@ -138,6 +142,7 @@ public struct Quaternion : Equatable {
       q3 /= norm
       return true
     }
+    
     return false
   }
   
@@ -169,7 +174,8 @@ public struct Quaternion : Equatable {
   }
 
   ///
-  /// The quaternion's inverse
+  /// The quaternion's inverse.  For a normalized quaternion, the inverse and the conjugate are
+  /// identical.
   ///
   /// - returns: the inverse
   ///
@@ -379,7 +385,9 @@ public struct DualQuaternion : Equatable {
   let dual : Quaternion
 
   ///
-  /// The norm of `self`
+  /// The norm of `self`.  This is the norm of `self.real`
+  ///
+  /// - returns: the norm
   ///
   public var norm : Double {
     return self.real.norm
@@ -389,7 +397,7 @@ public struct DualQuaternion : Equatable {
   /// The normalized `self` or nil.  If the `norm` is 0.0, then normalization is undefined and thus
   /// nil is returned.
   ///
-  /// - returns: `self` normalized
+  /// - returns: `self` normalized or `nil` if the norm is 0.0.
   ///
   public var normalize : DualQuaternion? {
     let norm = self.norm
@@ -447,7 +455,8 @@ public struct DualQuaternion : Equatable {
   }
   
   ///
-  /// The inverse.  This is defined such that self * self.inverse == identity
+  /// The inverse.  This is defined such that self * self.inverse == identity.  It is assumed that
+  /// `self.real` is normalized.
   ///
   /// - returns: the inverse
   ///

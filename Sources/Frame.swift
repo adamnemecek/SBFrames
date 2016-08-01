@@ -362,9 +362,6 @@ public final class Frame : Framed  {
   ///
   static let root = Frame()
 
-  internal typealias Projection = (x: Double, y: Double, z:Double)
-  
-
   // MARK: Axis
   
   ///
@@ -375,14 +372,12 @@ public final class Frame : Framed  {
     case y = 1
     case z = 2
     
-    static var names = ["X", "Y", "Z"]
+    static var names = ["x", "y", "z"]
     
     var name : String { return Axis.names[self.rawValue] }
     
     public var description : String { return name }
   }
-  
-  public let NUMBER_OF_AXES = 1 + Axis.z.rawValue
 }
 
 // MARK: Equatable
@@ -419,6 +414,12 @@ extension Frame : Translatable {
   public func translate (_ offset: Position) -> Frame {
     return transform(by: Frame (position: offset))
   }
+  
+  // See testMutable{1,2}
+  //  public func translated (_ offset: Position) {
+  //      let next = translate (offset)
+  //      self.dual = next.dual
+  //    }
 }
 
 // MARK: Transformable

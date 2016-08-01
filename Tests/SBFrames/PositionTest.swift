@@ -205,6 +205,20 @@ class PositionTest: XCTestCase {
     
   }
   
+  func testMutable () {
+    let p1 = Position (frame: Frame.root,  unit: meter, x: 1.0, y: 0.0, z: 0.0)
+    var p2 = p1
+    checkValues (p1, frame: Frame.root, unit: meter, x: 1.0, y: 0.0, z: 0.0)
+    checkValues (p2, frame: Frame.root, unit: meter, x: 1.0, y: 0.0, z: 0.0)
+
+    let off1 = Position (frame: Frame.root,  unit: meter, x: -2.0, y: 0.0, z: 0.0)
+    
+    // Translate p2; ensure p1 is unchanged.
+    p2.translated(off1)
+    checkValues (p1, frame: Frame.root, unit: meter, x:  1.0, y: 0.0, z: 0.0)
+    checkValues (p2, frame: Frame.root, unit: meter, x: -1.0, y: 0.0, z: 0.0)
+  }
+  
   func testPerformanceExample() {
     self.measure {
     }
