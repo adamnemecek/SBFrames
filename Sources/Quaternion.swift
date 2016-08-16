@@ -155,7 +155,7 @@ public struct Quaternion : Equatable {
   ///
   /// - parameter that:
   ///
-  /// - returns: the norm
+  /// - returns: the dot product
   ///
   public func dot (_ that: Quaternion) -> Double {
     return self.q0 * that.q0 +
@@ -346,7 +346,7 @@ public func * (lhs:Double, rhs:Quaternion) -> Quaternion {
                      q3: lhs * rhs.q3)
 }
 
-/// Return a quaternion of `self` scaled bu `factor`.  The *only* makes sense when `self` is a
+/// Return a quaternion of `self` scaled by `factor`.  The *only* makes sense when `self` is a
 /// pure quaternion (or if one is normalizing a rotation).
 ///
 /// - parameter lhs:
@@ -368,7 +368,7 @@ public func * (lhs:Quaternion, rhs:Double) -> Quaternion {
 /// A DualQuaternion represents a rotation followed by a translation in a computationally
 /// convenient form.  A DualQuaternion has 'real' and 'dual' Quaternion parts which are derived 
 /// from the specified rotation (R) and translation (T).  [The 'real' part is 'R'; the 'dual' part
-/// is'T * R / 2'].  Multiplication of DualQuaternions composes frame transforamations. Q * P
+/// is 'T * R / 2'].  Multiplication of DualQuaternions composes frame transforamations. Q * P
 /// implies 'transform by P, then by Q'
 ///
 /// A DualQuaternion can be built from a rotation and/or a translation.  Given a DualQuaternion
@@ -572,7 +572,7 @@ public struct DualQuaternion : Equatable {
   /// The identity using a zero translation and an identity rotation.
   ///
   public static var identity = DualQuaternion (real: Quaternion.identity,
-                                        dual: Quaternion.zero)
+                                               dual: Quaternion.zero)
 }
 
 ///

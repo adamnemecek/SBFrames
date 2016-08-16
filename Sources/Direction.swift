@@ -16,9 +16,8 @@ import SBUnits
 /// axis can be computed.  A Direction can produce a Position (given a `unit`) and an Orientation
 /// (given an `angle` about the direction).
 ///
-/// A Direction is immutable.
+/// A Direction is generally immutable.
 ///
-
 public struct Direction : Framed {
   
   /// The `frame`

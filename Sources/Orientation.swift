@@ -14,15 +14,10 @@ import SBUnits
 /// An Orientation represents the axes in a 3D cartesian coordinate system defined by a `frame.`  An
 /// Orientation adhers to the `Framed` protocol and can be rotated, inverted and transformed.
 ///
-/// An Orientation is immmutable.
+/// An Orientation is generally immmutable.
 
 public struct Orientation : Framed {
 
-  public enum RotationConvention {
-    case fixedXYZ
-    case eulerZYX
-  }
-  
   public let frame : Frame
   
   let quat : Quaternion
@@ -30,14 +25,13 @@ public struct Orientation : Framed {
   
   // MARK: Initialize
 
-  //
-  //
-  //
+  /// Initialize from a `frame` and a `quat`.
   internal init (frame: Frame, quat: Quaternion) {
     self.quat = quat
     self.frame = frame
   }
-  
+
+  /// Initialize from a `frame`, an `angle` and a `direction`.
   public init (frame: Frame, angle: Quantity<Angle>, direction: Direction) {
     let angle = angle.convert(radian).value
     
@@ -50,11 +44,18 @@ public struct Orientation : Framed {
                                  q2: sin_angle_over_2 * direction.y,
                                  q3: sin_angle_over_2 * direction.z));
   }
- 
+
+  /// Initialize from a `frame`, an `angle`, and an `axis`.
   public init (frame: Frame, angle: Quantity<Angle>, axis: Frame.Axis) {
     self.init (frame: frame, angle: angle, direction: Direction(frame: frame, axis: axis))
   }
   
+  public enum RotationConvention {
+    case fixedXYZ
+    case eulerZYX
+  }
+
+  /// Initialise from Euler or Fixed XYZ coordinates.
   public init (frame: Frame, unit: Unit<Angle>, convention: RotationConvention, x: Double, y: Double, z: Double) {
 
     let x = radian.convert (x, unit: unit)
@@ -81,16 +82,19 @@ public struct Orientation : Framed {
 
     }
   }
-  
+
+  /// Initialize from three directions, somehow.
   public init? (frame: Frame, unitX: Direction, unitY: Direction, unitZ: Direction) {
     return nil
   }
-  
+
+  /// Initialize form `dir1` and `dir2` as A=dir1, B=dir1xdir2, C=AxB, somehow
   public init? (frame: Frame, dir1: Direction, dir2: Direction) {
     return nil
   }
 
- init (frame: Frame) {
+  /// Initialize an identity orientation in `frame`
+  init (frame: Frame) {
     self.init (frame: frame, angle: Quantity<Angle>(value: 0.0, unit: radian), axis: Frame.Axis.z)
   }
 }
@@ -107,12 +111,11 @@ public func == (lhs: Orientation, rhs: Orientation) -> Bool {
 // MARK: Invertable
 
 extension Orientation : Invertable {
-  //
-  
+
+  /// The inverse
   public var inverse : Orientation {
     return Orientation (frame: frame, quat: quat.conjugate)
   }
-  
 }
 
 // MARK: Rotatable

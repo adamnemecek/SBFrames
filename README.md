@@ -12,7 +12,33 @@ Frames is a collection of ...
 
 ### Frame
 
-A Frame represents a 3D spatial position and orientation in a cartesian coordinate system.
+A Frame represents a 3d spatial position and orientation in a cartesian coordinate system.  One
+frame is designated as the 'base frame'.  Other frames are formed by a translation (by position)
+and a rotation (by orientation) from a 'parent' frame.  Frames are built upon frames, ultimately
+recursing back down to the 'base frame'.  Note: even the 'base frame' has a parent (itself), a
+position (zero) and an orientation (identity) - this is an implementation convenience to avoid
+Optional types for `frame`, `position` and `orientation` properties.
+
+Importantly a `Frame` is a reference type and is mutable, in some limited ways.  The
+mutability implies that if frame X changes to a different physical location, then all child
+frames will change physical location too.  For example, a spacecraft has a camera attached to 
+the spacecraft (mechanical) bus; the camera's lens has a defined boresight.  When the 
+spacecraft rotates, the boresight (a direction in the camera's frame) changes too - even
+though neither the direction in camera frame nor the camera frame in the spacecraft frame
+changed.
+
+Consider the implication of a Frame implemented as a value type.  All direct children would 
+point to the same parent but then, if the parent is mutated, all the direct children would
+point to the original parent.  For the mutated parent to impact the children, every child,
+themselves value types, would need to be 'reallocated', and so on down the tree.  Any object
+holding a frame anywhere at or below the mutated parent would hold the original.  It is not
+a pleasant thought (see SBBasics::Tree for a value type binary tree) to handle updating all 
+subtree references.
+
+When implemented as a reference type, referencers will need to 'register' (in a TBD manner) to
+learn of frame changes.  One expects this to be common - not only does a camera need to know
+when it's boresight has changed, it also needs to know when an asteroid has moved (and would be
+registering for the asteriod's frame changes too).
 
 ### Orientation
 
@@ -46,7 +72,7 @@ uses the three position coordianates.  Such a quaternion is 'pure'.
 A DualQuaternion represents a rotation followed by a translation in a computationally
 convenient form.  A DualQuaternion has 'real' and 'dual' Quaternion parts which are derived 
 from the specified rotation (R) and translation (T).  [The 'real' part is 'R'; the 'dual' part
-is'T * R / 2'].  Multiplication of DualQuaternions composes frame transforamations. Q * P
+is T * R / 2].  Multiplication of DualQuaternions composes frame transforamations. Q * P
 implies 'transform by P, then by Q'
 
 A DualQuaternion can be built from a rotation and/or a translation.  Given a DualQuaternion

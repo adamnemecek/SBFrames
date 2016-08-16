@@ -6,7 +6,6 @@
 //  Copyright © 2016 Opus Logica Inc. All rights reserved.
 //
 
-
 import XCTest
 import SBUnits
 

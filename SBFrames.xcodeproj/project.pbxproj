@@ -18,7 +18,7 @@
 		3C78E1911D371D8D004DD937 /* QuaternionTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C78E1901D371D8D004DD937 /* QuaternionTest.swift */; };
 		3C78E1961D3845BF004DD937 /* QuaternionDualTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C78E1921D37487D004DD937 /* QuaternionDualTest.swift */; };
 		3C7C279A1CA49121001B31A8 /* SBUnits.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3C7C27991CA49121001B31A8 /* SBUnits.framework */; };
-		3C8A690D1CE3A668004217D7 /* Vector.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C2F54F21C500B3C004EDD62 /* Vector.swift */; };
+		3C995ACB1D53D40800928707 /* SBUnits.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3C995ACA1D53D40800928707 /* SBUnits.framework */; };
 		3CF4C3A51D288294004BFAA6 /* OrientationTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CF4C3A41D288294004BFAA6 /* OrientationTest.swift */; };
 		3CF4C3A71D2C0DBD004BFAA6 /* DirectionTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CF4C3A61D2C0DBD004BFAA6 /* DirectionTest.swift */; };
 		3CFE5C031D11EFA40087FF70 /* PositionTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CFE5C021D11EFA40087FF70 /* PositionTest.swift */; };
@@ -51,6 +51,9 @@
 		3C78E1921D37487D004DD937 /* QuaternionDualTest.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = QuaternionDualTest.swift; sourceTree = "<group>"; };
 		3C7C27991CA49121001B31A8 /* SBUnits.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SBUnits.framework; path = "../../../Library/Developer/Xcode/DerivedData/SB-eamescwzvtituiaculknzgswpuaq/Build/Products/Debug/SBUnits.framework"; sourceTree = "<group>"; };
 		3C7DC01D1D47CE5C005EDF4C /* SBFrames.playground */ = {isa = PBXFileReference; lastKnownFileType = file.playground; path = SBFrames.playground; sourceTree = "<group>"; };
+		3C995ABF1D53D13B00928707 /* Accelerate.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Accelerate.framework; path = System/Library/Frameworks/Accelerate.framework; sourceTree = SDKROOT; };
+		3C995AC11D53D14400928707 /* GLKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = GLKit.framework; path = System/Library/Frameworks/GLKit.framework; sourceTree = SDKROOT; };
+		3C995ACA1D53D40800928707 /* SBUnits.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SBUnits.framework; path = "../../../Library/Developer/Xcode/DerivedData/SB-hfxungskrqmpjfdigrthyxdyutec/Build/Products/Debug/SBUnits.framework"; sourceTree = "<group>"; };
 		3CDA7BCF1C11505E0096AA8A /* LICENSE */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = LICENSE; sourceTree = "<group>"; };
 		3CDA7BD01C11505E0096AA8A /* NOTICE */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = NOTICE; sourceTree = "<group>"; };
 		3CDA7BD11C11505E0096AA8A /* SBFrames.podspec */ = {isa = PBXFileReference; explicitFileType = text.script.ruby; fileEncoding = 4; path = SBFrames.podspec; sourceTree = "<group>"; };
@@ -75,6 +78,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				3C135C6D1BD8C6110000C7D8 /* SBFrames.framework in Frameworks */,
+				3C995ACB1D53D40800928707 /* SBUnits.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -119,13 +123,13 @@
 		3C135C701BD8C6110000C7D8 /* Tests */ = {
 			isa = PBXGroup;
 			children = (
-				3C135C731BD8C6110000C7D8 /* Info.plist */,
 				3C78E1901D371D8D004DD937 /* QuaternionTest.swift */,
 				3C78E1921D37487D004DD937 /* QuaternionDualTest.swift */,
 				3CFE5C021D11EFA40087FF70 /* PositionTest.swift */,
 				3CF4C3A61D2C0DBD004BFAA6 /* DirectionTest.swift */,
 				3CF4C3A41D288294004BFAA6 /* OrientationTest.swift */,
 				3C434A511D20703E00024F32 /* FrameTest.swift */,
+				3C995AA71D53CB6100928707 /* Support */,
 			);
 			name = Tests;
 			path = Tests/SBFrames;
@@ -143,9 +147,20 @@
 		3C135C7D1BD8C6220000C7D8 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				3C995ACA1D53D40800928707 /* SBUnits.framework */,
+				3C995AC11D53D14400928707 /* GLKit.framework */,
+				3C995ABF1D53D13B00928707 /* Accelerate.framework */,
 				3C7C27991CA49121001B31A8 /* SBUnits.framework */,
 			);
 			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		3C995AA71D53CB6100928707 /* Support */ = {
+			isa = PBXGroup;
+			children = (
+				3C135C731BD8C6110000C7D8 /* Info.plist */,
+			);
+			name = Support;
 			sourceTree = "<group>";
 		};
 		3CDA7BCE1C114FF90096AA8A /* Share */ = {
@@ -216,7 +231,7 @@
 		3C135C591BD8C6110000C7D8 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastSwiftUpdateCheck = 0710;
+				LastSwiftUpdateCheck = 0800;
 				LastUpgradeCheck = 0800;
 				ORGANIZATIONNAME = "Opus Logica Inc.";
 				TargetAttributes = {
@@ -274,7 +289,6 @@
 				3C434A501D2042F400024F32 /* Quaternion.swift in Sources */,
 				3C135C811BD8C64A0000C7D8 /* Orientation.swift in Sources */,
 				3C135C7F1BD8C6360000C7D8 /* Position.swift in Sources */,
-				3C8A690D1CE3A668004217D7 /* Vector.swift in Sources */,
 				3C135C851BD8CC710000C7D8 /* Direction.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -339,7 +353,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				MACOSX_DEPLOYMENT_TARGET = 10.12;
+				MACOSX_DEPLOYMENT_TARGET = 10.11;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = macosx;
@@ -379,7 +393,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				MACOSX_DEPLOYMENT_TARGET = 10.12;
+				MACOSX_DEPLOYMENT_TARGET = 10.11;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				SDKROOT = macosx;
 				VERSIONING_SYSTEM = "apple-generic";
@@ -401,7 +415,7 @@
 				INFOPLIST_FILE = Sources/Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/Frameworks";
-				MACOSX_DEPLOYMENT_TARGET = 10.12;
+				MACOSX_DEPLOYMENT_TARGET = 10.11;
 				PRODUCT_BUNDLE_IDENTIFIER = com.opuslogica.SBFrames;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
@@ -424,7 +438,7 @@
 				INFOPLIST_FILE = Sources/Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/Frameworks";
-				MACOSX_DEPLOYMENT_TARGET = 10.12;
+				MACOSX_DEPLOYMENT_TARGET = 10.11;
 				PRODUCT_BUNDLE_IDENTIFIER = com.opuslogica.SBFrames;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
@@ -440,6 +454,7 @@
 				COMBINE_HIDPI_IMAGES = YES;
 				INFOPLIST_FILE = Tests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
+				MACOSX_DEPLOYMENT_TARGET = 10.11;
 				PRODUCT_BUNDLE_IDENTIFIER = com.opuslogica.SBFramesTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
@@ -454,6 +469,7 @@
 				COMBINE_HIDPI_IMAGES = YES;
 				INFOPLIST_FILE = Tests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
+				MACOSX_DEPLOYMENT_TARGET = 10.11;
 				PRODUCT_BUNDLE_IDENTIFIER = com.opuslogica.SBFramesTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 3.0;

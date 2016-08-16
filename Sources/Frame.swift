@@ -231,12 +231,33 @@ public protocol Composable : Framed {
 //
 //
 
-/// A Frame represents a 3d spatial position and orientation in a cartesian coordinate system.
+/// A Frame represents a 3d spatial position and orientation in a cartesian coordinate system.  One
+/// frame is designated as the 'base frame'.  Other frames are formed by a translation (by position)
+/// and a rotation (by orientation) from a 'parent' frame.  Frames are built upon frames, ultimately
+/// recursing back down to the 'base frame'.  [Note: even the 'base frame' has a parent (itself), a
+/// position (zero) and an orientation (identity) - this is an implementation convenience to avoid
+/// Optional types for `frame`, `position` and `orientation` properties].
 ///
-/// We desperately avoid defining `var position : Position?` with `Optional`.  Clearly the `base`
-/// frame has no position nor orientation and thus a recursive `Frame` definition demands use of
-/// `Optional` for postion and orientation.  Yet, we find that unsettling.  Another possibility is
-/// to use an `ImplicitlyUnwrappedOptional` which we also avoid.  Instead, well, see below.
+/// Importantly a `Frame` is a reference type and is mutable, in some limited ways.  The
+/// mutability implies that if frame X changes to a different physical location, then all child
+/// frames will change physical location too.  For example, a spacecraft has a camera attached to 
+/// the spacecraft (mechanical) bus; the camera's lens has a defined boresight.  When the 
+/// spacecraft rotates, the boresight (a direction in the camera's frame) changes too - even
+/// though neither the direction in camera frame nor the camera frame in the spacecraft frame
+/// changed.
+///
+/// Consider the implication of a Frame implemented as a value type.  All direct children would 
+/// point to the same parent but then, if the parent is mutated, all the direct children would
+/// point to the original parent.  For the mutated parent to impact the children, every child,
+/// themselves value types, would need to be 'reallocated', and so on down the tree.  Any object
+/// holding a frame anywhere at or below the mutated parent would hold the original.  It is not
+/// a pleasant thought (see SBBasics::Tree for a value type binary tree) to handle updating all 
+/// subtree references.
+///
+/// When implemented as a reference type, referencers will need to 'register' (in a TBD manner) to
+/// learn of frame changes.  One expects this to be common - not only does a camera need to know
+/// when it's boresight has changed, it also needs to know when an asteroid has moved (and would be
+/// registering for the asteriod's frame changes too).
 ///
 public final class Frame : Framed  {
   
@@ -246,11 +267,11 @@ public final class Frame : Framed  {
     return self
   }()
 
-  /// The unit
+  /// The unit.  Derived from the frame's position and `meter` by default.
   public internal(set) var unit : Unit<Length> = meter
   
   /// The dual, a DualQuaternion
-  public internal(set) var dual : DualQuaternion = DualQuaternion.identity
+  internal var dual : DualQuaternion = DualQuaternion.identity
   
   /// The position in `frame`
   var position : Position {
@@ -282,10 +303,17 @@ public final class Frame : Framed  {
   func rotation (angle: Quantity<Angle>, direction: Direction) -> Orientation {
       return Orientation (frame: self, angle: angle, direction: direction)
   }
-  
+
+  // MARK: Update
+  internal func updated (to target: Frame) {
+    self.frame = target.frame
+    self.unit  = target.unit
+    self.dual  = target.dual
+  }
   
   // MARK: Initialize
-  
+
+  /// The one and only one base frame, privately.
   private init () {}
 
   ///
@@ -295,7 +323,7 @@ public final class Frame : Framed  {
   /// - parameter unit:
   /// - parameter dual:
   ///
-  private init (frame: Frame, unit: Unit<Length>, dual: DualQuaternion) {
+  internal init (frame: Frame, unit: Unit<Length>, dual: DualQuaternion) {
     self.frame = frame
     self.unit = unit
     self.dual = dual
@@ -403,36 +431,62 @@ extension Frame : Invertable {
 // MARK: Rotatable
 
 extension Frame : Rotatable {
+
+  /// Rotate `self` returning a new `Frame`
+  ///
+  /// - argument offset: the orientation to rotate by
+  ///
+  /// - returns: `self` rotated
+  ///
   public func rotate (_ offset: Orientation) -> Frame {
     return transform(by: Frame (orientation: offset))
+  }
+
+  /// Rotate `self` and then mutate `self`.  Note: overrides the Protocol extension to ensure that
+  /// `self` is in fact mutated.
+  ///
+  /// - argument offset: the orientation to rotate by
+  ///
+  public func rotated(_ offset: Orientation) {
+    transformed (by: Frame (orientation: offset))
   }
 }
 
 // MARK: Translatable
 
 extension Frame : Translatable {
+
+  /// Translate `self` returning a new `Frame`
+  ///
+  /// - argument offset: the position to translate by
+  ///
+  /// - returns: `self` translated
+  ///
   public func translate (_ offset: Position) -> Frame {
     return transform(by: Frame (position: offset))
   }
-  
-  // See testMutable{1,2}
-  //  public func translated (_ offset: Position) {
-  //      let next = translate (offset)
-  //      self.dual = next.dual
-  //    }
+
+  /// Translate `self` and then mutate `self`.  Note: overrides the Protocol extension to ensure 
+  /// that `self` is in fact mutated.
+  ///
+  /// - argument offset: the position to translate by
+  ///
+  public func translated (_ offset: Position) {
+    transformed (by: Frame (position: offset))
+  }
 }
 
 // MARK: Transformable
 
 extension Frame : Transformable {
   public func transformed (to frame: Frame) {
-    let target = transform (to: frame)
-    
-    self.frame = target.frame
-    self.unit = target.frame.unit
-    self.dual = target.frame.dual
+    updated (to: transform (to: frame))
   }
-  
+
+  public func transformed (by frame: Frame) {
+    updated (to: transform (by: frame))
+  }
+
   ///
   ///
   ///
@@ -448,35 +502,35 @@ extension Frame : Transformable {
       return Frame (frame: self.frame, unit: self.unit, dual:  self.dual)
     }
       
-      // `frame` is the parent of `self.frame` - convert to `parent`
+    // `frame` is the parent of `self.frame` - convert to `parent`
     else if parent.has (frame: that) {
       return Frame (frame: that,
                     unit: that.unit,
                     dual: parent.dual * self.dual)
     }
       
-      // `frame` is an ancestor (beyond parent) of `self.
+    // `frame` is an ancestor (beyond parent) of `self.
     else if parent.has (ancestor: that) {
       return self.transform (to: parent.frame)
         .transform (to: that)
-      //
     }
       
-      // `self is the parent of `frame`
+    // `self is the parent of `frame`
     else if that.has (frame: self) {
       return Frame (frame: that,
                     unit: that.unit,
                     dual: that.dual.inverse)
     }
       
-      // `self` is an ancestor (beyond parent) of `frame`
+    // `self` is an ancestor (beyond parent) of `frame`
     else if that.has (ancestor: self) {
       let x = that.transform (to: self)
       return Frame (frame: that,
                     unit: that.unit,
                     dual: x.dual.inverse)
     }
-      
+
+      // `self` up to `common`, then  down to `that`
     else {
       let common = self.common (that)
       
@@ -485,7 +539,7 @@ extension Frame : Transformable {
       
       return Frame (frame: that,
                     unit: that.unit,
-                    dual:  common_to_that.dual * self_to_common.dual /* * self_to_common.dual */)
+                    dual:  common_to_that.dual * self_to_common.dual)
     }
   }
   
@@ -502,6 +556,7 @@ extension Frame : Transformable {
                   unit: self.unit,
                   dual: that.dual * self.dual)
   }
+
 }
 
 // MARK: Composable

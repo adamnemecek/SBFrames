@@ -11,13 +11,13 @@ import Darwin.C.math
 #endif
 
 ///
-/// A Position represents a 3d spatial position in a 3D certesian coordinate system defined by a
+/// A Position represents a 3d spatial position in a 3D cartesian coordinate system defined by a
 /// `frame`.  A Position adhers to the `Framed` protocol and can be scaled, translated, rotated, 
 /// inverted and transformed.  A Position can be converted into a `Direction`.  With two Positions
-/// a can computate the distance and angle between the two postions; of the two positions are in
+/// one can computate the distance and angle between the two postions; if the two positions are in
 /// a different frame, then they are converted to the same frame before the desired computation.
 ///
-/// A Position is immutable
+/// A Position is generally immutable.
 ///
 public struct Position : Framed {
 
@@ -100,7 +100,7 @@ public struct Position : Framed {
   }
   
   ///
-  /// Scale `self` for `unit`.  The retured Postion corresponds to the same position in frame but
+  /// Scale `self` for `unit`.  The returned Postion corresponds to the same position in frame but
   /// is represented with `unit`
   ///
   public func scale (for unit: Unit<Length>) -> Position {
