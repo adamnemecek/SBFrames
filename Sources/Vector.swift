@@ -13,7 +13,7 @@ import Accelerate
 public protocol VectorProtocol {
   associatedtype Value : FloatingPoint
   
-  func withBaseAddress<R> (_ body: @noescape (UnsafePointer<Value>) throws -> R) rethrows -> R
+  func withBaseAddress<R> (_ body: (UnsafePointer<Value>) throws -> R) rethrows -> R
 
   var count : Int { get }
   func sum () ->  Value
@@ -75,20 +75,20 @@ public struct Vector<Value : FloatingPoint> : VectorProtocol {
   }
   
 
-  public func withBaseAddress<R> (_ body: @noescape (UnsafePointer<Value>) throws -> R) rethrows -> R {
+  public func withBaseAddress<R> (_ body: (UnsafePointer<Value>) throws -> R) rethrows -> R {
     return try ca.withUnsafeBufferPointer {  return try body ($0.baseAddress!) }
   }
 
   public init (count : Int) {
-    self.ca = ContiguousArray<Value>(repeating: Value(), count: count)
+    self.ca = ContiguousArray<Value>(repeating: Value(0), count: count)
   }
   
   public func sum () -> Value {
-    return ca.reduce (Value(), +)
+    return ca.reduce (Value(0), +)
   }
   
   public func norm () -> Value {
-    return ca.reduce (Value()) { $0 + $1 * $1 }
+    return ca.reduce (Value(0)) { $0 + $1 * $1 }
   }
 }
 

@@ -1,0 +1,12 @@
+{
+  "autoPin": true,
+  "pins": [
+    {
+      "package": "SBUnits",
+      "reason": null,
+      "repositoryURL": "https://github.com/EBGToo/SBUnits.git",
+      "version": "0.3.0"
+    }
+  ],
+  "version": 1
+}
