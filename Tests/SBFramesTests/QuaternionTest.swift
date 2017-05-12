@@ -123,6 +123,47 @@ class QuaternionTest: XCTestCase {
     _ = qb.normalized()
     XCTAssertTrue(qb.isUnit(epsilon: accuracy))
   }
+
+  func testQAngle () {
+    // yaw
+    var q = Quaternion.makeAsYawPitchRoll(yaw: Double.pi/2, pitch: 0.0, roll: 0.0)
+    var (phi,theta,psi) = q.asYawPitchRoll
+
+    XCTAssertEqualWithAccuracy(phi,   Double.pi/2, accuracy: accuracy)
+    XCTAssertEqualWithAccuracy(theta,         0.0, accuracy: accuracy)
+    XCTAssertEqualWithAccuracy(psi,           0.0, accuracy: accuracy)
+
+    // pitch
+    q = Quaternion.makeAsYawPitchRoll(yaw: 0.0, pitch: Double.pi/2, roll: 0.0)
+    (phi,theta,psi) = q.asYawPitchRoll
+
+    XCTAssertEqualWithAccuracy(phi,           0.0, accuracy: accuracy)
+    XCTAssertEqualWithAccuracy(theta, Double.pi/2, accuracy: accuracy)
+    XCTAssertEqualWithAccuracy(psi,           0.0, accuracy: accuracy)
+
+    // roll
+    q = Quaternion.makeAsYawPitchRoll(yaw: 0.0, pitch: 0.0, roll: Double.pi/2)
+    (phi,theta,psi) = q.asYawPitchRoll
+
+    XCTAssertEqualWithAccuracy(phi,           0.0, accuracy: accuracy)
+    XCTAssertEqualWithAccuracy(theta,         0.0, accuracy: accuracy)
+    XCTAssertEqualWithAccuracy(psi,   Double.pi/2, accuracy: accuracy)
+
+    let start = -0.45 * Double.pi
+    let limit =  0.50 * Double.pi
+    let step  =  0.05 * Double.pi
+    for yaw in stride(from: start, to: limit, by: step) {
+      for pitch in stride(from: start, to: limit, by: step) {
+        for roll in stride(from: start, to: limit, by: step) {
+          q = Quaternion.makeAsYawPitchRoll(yaw: yaw, pitch: pitch, roll: roll)
+          (phi,theta,psi) = q.asYawPitchRoll
+          XCTAssertEqualWithAccuracy(phi,     yaw, accuracy: accuracy)
+          XCTAssertEqualWithAccuracy(theta, pitch, accuracy: accuracy)
+          XCTAssertEqualWithAccuracy(psi,    roll, accuracy: accuracy)
+        }
+      }
+    }
+  }
   
   func testPerformanceQuaternion() {
     let xq = Quaternion.makeAsAngleDirection(angle: Double.pi/2, direction: (0.0, 0.0, 1.0))!

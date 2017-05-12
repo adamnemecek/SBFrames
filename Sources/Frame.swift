@@ -388,7 +388,7 @@ public final class Frame : Framed  {
   /// if you instead define all our frames under one other frame (which will be a subframe of
   /// base).
   ///
-  static let root = Frame()
+  public static let root = Frame()
 
   // MARK: Axis
   
@@ -410,9 +410,10 @@ public final class Frame : Framed  {
 
 // MARK: Equatable
 
-extension Frame : Equatable {}
-public func == (lhs: Frame, rhs: Frame) -> Bool {
-  return lhs === rhs
+extension Frame : Equatable {
+  public static func == (lhs: Frame, rhs: Frame) -> Bool {
+    return lhs === rhs
+  }
 }
 
 // MARK: Invertable

@@ -18,11 +18,49 @@ import SBUnits
 
 public struct Orientation : Framed {
 
+  ///
+  /// Enumeration of possible rotation conventions used when constructing and extracting
+  /// orientation angles.  The `eulerZYZ` convention produces (raw, pitch, roll) angles.
+  ///
+  public enum RotationConvention {
+    case fixedXYZ
+    case eulerZYX // (yaw, pitch, roll)
+  }
+
+  /// The `frame` of `self`
   public let frame : Frame
-  
+
+  /// The `quaternion` representation for `self`
   let quat : Quaternion
-  
-  
+
+  ///
+  /// Return the (yaw, pitch, roll) angles in radians
+  ///
+  /// - returns: triple of angles, in radians
+  ///
+  public var asYawPitchRoll : (yaw:Double, pitch:Double, roll:Double) {
+    return quat.asYawPitchRoll
+  }
+
+  ///
+  /// Return a triple of angles according to `convention`.
+  ///
+  /// - parameter convention: the rotation convention
+  ///
+  /// - returns: triple of angles, in radians.
+  ///
+  public func asAnglesFor (convention: RotationConvention) -> (x:Double, y:Double, z:Double) {
+    let (yaw, pitch, roll) = quat.asYawPitchRoll
+
+    switch convention {
+    case .fixedXYZ:
+      return (x: roll, y: pitch, z: yaw)
+
+    case .eulerZYX:
+      return (x: yaw, y: pitch, z: roll)
+    }
+  }
+
   // MARK: Initialize
 
   /// Initialize from a `frame` and a `quat`.
@@ -49,13 +87,18 @@ public struct Orientation : Framed {
   public init (frame: Frame, angle: Quantity<Angle>, axis: Frame.Axis) {
     self.init (frame: frame, angle: angle, direction: Direction(frame: frame, axis: axis))
   }
-  
-  public enum RotationConvention {
-    case fixedXYZ
-    case eulerZYX
+
+  /// Initialize from a `frame` and `yaw`, `pitch`, and `roll` angles in `unit`
+  public init (frame: Frame, unit: Unit<Angle>, yaw: Double, pitch: Double, roll: Double) {
+    let   yaw = radian.convert (  yaw, unit: unit)
+    let pitch = radian.convert (pitch, unit: unit)
+    let  roll = radian.convert ( roll, unit: unit)
+
+    self.init (frame: frame,
+               quat: Quaternion.makeAsYawPitchRoll(yaw: yaw, pitch: pitch, roll: roll))
   }
 
-  /// Initialise from Euler or Fixed XYZ coordinates.
+  /// Initialize from Euler or Fixed XYZ coordinates.
   public init (frame: Frame, unit: Unit<Angle>, convention: RotationConvention, x: Double, y: Double, z: Double) {
 
     let x = radian.convert (x, unit: unit)
@@ -64,22 +107,12 @@ public struct Orientation : Framed {
     
     switch convention {
     case .fixedXYZ:
-      self.init (frame: frame)
+      self.init (frame: frame,
+                 quat: Quaternion.makeAsYawPitchRoll(yaw: z, pitch: y, roll: x))
 
     case .eulerZYX:
-    let c1 = cos (x / 2)
-    let c2 = cos (y / 2)
-    let c3 = cos (z / 2)
-    let s1 = sin (x / 2)
-    let s2 = sin (y / 2)
-    let s3 = sin (z / 2)
-    
-    self.init (frame: frame,
-               quat: Quaternion (q0: s1 * c2 * c3 + c1 * s2 * s3,
-                                 q1: c1 * s2 * c3 - s1 * c2 * s3,
-                                 q2: c1 * c2 * s3 + s1 * s2 * c3,
-                                 q3: c1 * c2 * c3 - s1 * s2 * s3))
-
+      self.init (frame: frame,
+                 quat: Quaternion.makeAsYawPitchRoll(yaw: x, pitch: y, roll: z))
     }
   }
 
@@ -101,12 +134,12 @@ public struct Orientation : Framed {
 
 // MARK: Equatable
 
-extension Orientation : Equatable {}
-public func == (lhs: Orientation, rhs: Orientation) -> Bool {
-  return lhs.frame == rhs.frame &&
-    lhs.quat == rhs.quat
+extension Orientation : Equatable {
+  public static func == (lhs: Orientation, rhs: Orientation) -> Bool {
+    return lhs.frame == rhs.frame &&
+      lhs.quat == rhs.quat
+  }
 }
-
 
 // MARK: Invertable
 

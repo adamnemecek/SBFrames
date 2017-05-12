@@ -176,10 +176,11 @@ public struct Direction : Framed {
 ///
 ///
 ///
-extension Direction : Equatable {}
-public func == (lhs: Direction, rhs: Direction) -> Bool {
-  return lhs.frame == rhs.frame &&
-    lhs.quat == rhs.quat
+extension Direction : Equatable {
+  public static func == (lhs: Direction, rhs: Direction) -> Bool {
+    return lhs.frame == rhs.frame &&
+      lhs.quat == rhs.quat
+  }
 }
 
 // MARK: Invertable

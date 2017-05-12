@@ -248,17 +248,28 @@ public struct Quaternion : Equatable {
   }
   
   //
-  // MARK: Fixed/Euler Angles
+  // MARK: Yaw Pitch Roll (Fixed/Euler Angles)
   //
-  
-  public var asFixedXYZAngles : (phi: Double, theta: Double, psi: Double) {
-    return (phi:   atan2 (2 * (q0*q1 + q2*q3), 1 - 2 * (q1*q1 + q2*q2)),
-            theta: asin  (2 * (q0*q2 - q3*q1)),
-            psi:   atan2 (2 * (q0*q3 + q1*q2), 1 - 2 * (q2*q2 + q3*q3)))
+
+  ///
+  /// Extract (yaw, pitch, roll) from `self`
+  ///
+  /// - returns: A triple as (yaw, pitch, roll) angles in radians
+  //
+  public var asYawPitchRoll : (yaw: Double, pitch: Double, roll: Double) {
+    return (  yaw: atan2 (2 * (q0*q1 + q2*q3), 1 - 2 * (q1*q1 + q2*q2)),
+            pitch: asin  (2 * (q0*q2 - q3*q1)),
+             roll: atan2 (2 * (q0*q3 + q1*q2), 1 - 2 * (q2*q2 + q3*q3)))
   }
 
-  // MARK: See Above
-  
+  ///
+  /// Make from (yaw, pitch, roll)
+  ///
+  /// - parameter yaw: 
+  /// - parameter pitch:
+  /// - parameter roll:
+  ///
+  /// - returns:
   public static func makeAsYawPitchRoll (yaw: Double, pitch: Double, roll: Double) -> Quaternion {
     let ys = sin (yaw / 2.0)
     let yc = cos (yaw / 2.0)
@@ -269,14 +280,12 @@ public struct Quaternion : Equatable {
     let rs = sin (roll / 2.0)
     let rc = cos (roll / 2.0)
     
-    // Perhaps.
-    return Quaternion (q0: yc * ps * rc + ys * pc * rs,
+    return Quaternion (q0: yc * pc * rc + ys * ps * rs,
                        q1: ys * pc * rc - yc * ps * rs,
-                       q2: yc * pc * rs - ys * ps * rc,
-                       q3: yc * ps * rc + ys * ps * rs)
+                       q2: yc * ps * rc + ys * pc * rs,
+                       q3: yc * pc * rs - ys * ps * rc)
   }
-  // var asEulerXXXAngles :
-  
+
   // MARK: Position
   
   ///
@@ -292,11 +301,13 @@ public struct Quaternion : Equatable {
   public static let zero     = Quaternion (q0: 0.0, q1: 0.0, q2: 0.0, q3: 0.0)
 }
 
-public func == (lhs:Quaternion, rhs:Quaternion) -> Bool {
-  return lhs.q0 == rhs.q0 &&
-    lhs.q1 == rhs.q1 &&
-    lhs.q2 == rhs.q2 &&
-    lhs.q3 == rhs.q3
+extension Quaternion {
+  public static func == (lhs:Quaternion, rhs:Quaternion) -> Bool {
+    return lhs.q0 == rhs.q0
+      && lhs.q1 == rhs.q1
+      && lhs.q2 == rhs.q2
+      && lhs.q3 == rhs.q3
+  }
 }
 
 ///
@@ -578,9 +589,11 @@ public struct DualQuaternion : Equatable {
 ///
 ///
 ///
-public func == (lhs:DualQuaternion, rhs:DualQuaternion) -> Bool {
-  return lhs.real == rhs.real &&
-    lhs.dual == rhs.dual
+extension DualQuaternion {
+  public static func == (lhs:DualQuaternion, rhs:DualQuaternion) -> Bool {
+    return lhs.real == rhs.real
+      && lhs.dual == rhs.dual
+  }
 }
 
 ///

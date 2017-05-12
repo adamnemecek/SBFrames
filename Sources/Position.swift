@@ -206,14 +206,13 @@ public struct Position : Framed {
 ///
 ///
 ///
-extension Position : Equatable {}
-
-public func == (lhs: Position, rhs: Position) -> Bool {
-  return lhs.frame == rhs.frame &&
-    lhs.unit == rhs.unit &&
-    lhs.quat == rhs.quat
+extension Position : Equatable {
+  public static func == (lhs: Position, rhs: Position) -> Bool {
+    return lhs.frame == rhs.frame &&
+      lhs.unit == rhs.unit &&
+      lhs.quat == rhs.quat
+  }
 }
-
 // MARK: Invertable
 
 extension Position : Invertable {

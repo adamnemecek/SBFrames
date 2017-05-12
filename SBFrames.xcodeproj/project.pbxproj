@@ -7,7 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		3C1936D21EBD2AED006D610E /* README.md in Sources */ = {isa = PBXBuildFile; fileRef = 3C1936CF1EBD2AED006D610E /* README.md */; };
 		OBJ_37 /* Dimension.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_24 /* Dimension.swift */; };
 		OBJ_38 /* Quantity.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_25 /* Quantity.swift */; };
 		OBJ_39 /* System.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_26 /* System.swift */; };
@@ -172,7 +171,7 @@
 			name = Products;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
-		OBJ_5 /*  */ = {
+		OBJ_5 = {
 			isa = PBXGroup;
 			children = (
 				OBJ_6 /* Package.swift */,
@@ -183,7 +182,6 @@
 				OBJ_22 /* Dependencies */,
 				OBJ_28 /* Products */,
 			);
-			name = "";
 			sourceTree = "<group>";
 		};
 		OBJ_7 /* Sources */ = {
@@ -268,7 +266,7 @@
 			knownRegions = (
 				en,
 			);
-			mainGroup = OBJ_5 /*  */;
+			mainGroup = OBJ_5;
 			productRefGroup = OBJ_28 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -287,7 +285,6 @@
 			files = (
 				OBJ_37 /* Dimension.swift in Sources */,
 				OBJ_38 /* Quantity.swift in Sources */,
-				3C1936D21EBD2AED006D610E /* README.md in Sources */,
 				OBJ_39 /* System.swift in Sources */,
 				OBJ_40 /* Unit.swift in Sources */,
 			);

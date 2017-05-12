@@ -138,7 +138,20 @@ class OrientationTest: XCTestCase {
     let c180x = Orientation (frame: base, angle: a0, axis: .z).compose(o180x)
     checkQuant(qA: o180x.quat, qB: c180x.quat)
   }
-  
+
+  /*
+  func testAngles () {
+    let (phi,theta,psi) = (37.5, 10.0, 22.0)
+    let o1 = Orientation(frame: base, unit: degree, convention: .fixedXYZ, x: phi, y: theta, z: psi)
+    let (oPhi, oTheta, oPsi) = o1.asFixedXYZAngles
+
+
+    XCTAssertEqualWithAccuracy(phi, degree.convert(oPhi, unit: radian), accuracy: 1e-10)
+    XCTAssertEqualWithAccuracy(theta, degree.convert(oTheta, unit: radian), accuracy: 1e-10)
+    XCTAssertEqualWithAccuracy(psi, degree.convert(oPsi, unit: radian), accuracy: 1e-10)
+
+  }
+*/
   func testPerformanceExample() {
     self.measure {
     }
