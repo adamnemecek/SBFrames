@@ -1,6 +1,8 @@
 # Frame, Orientation, Position, Direction, Quaternion, DualQuaternion
 
-Frames is a collection of ...
+Frames, Positions and Orientations allow for 3d objects to be represented spatially.  Frames are
+defined recursively in terms of other frames - this allows for coordinate transformations between
+frames which in turn allows the relationship between objects to be determined. 
 
 ![License](https://img.shields.io/cocoapods/l/SBFrames.svg)
 [![Language](https://img.shields.io/badge/lang-Swift-orange.svg?style=flat)](https://developer.apple.com/swift/)
@@ -15,9 +17,7 @@ Frames is a collection of ...
 A Frame represents a 3d spatial position and orientation in a cartesian coordinate system.  One
 frame is designated as the 'base frame'.  Other frames are formed by a translation (by position)
 and a rotation (by orientation) from a 'parent' frame.  Frames are built upon frames, ultimately
-recursing back down to the 'base frame'.  Note: even the 'base frame' has a parent (itself), a
-position (zero) and an orientation (identity) - this is an implementation convenience to avoid
-Optional types for `frame`, `position` and `orientation` properties.
+recursing back down to the 'base frame'.  
 
 Importantly a `Frame` is a reference type and is mutable, in some limited ways.  The
 mutability implies that if frame X changes to a different physical location, then all child
